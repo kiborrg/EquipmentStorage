@@ -15,7 +15,8 @@ namespace DBRepository.Interfaces
         /// Получить список местоположений асинхронно
         /// </summary>
         /// <returns>Местоположения</returns>
-        Task<List<Location>> GetLocationsAsync();
+        //Task<List<Location>> GetLocationsAsync();
+        Task<List<LocationEquipCnt>> GetLocationsAsync();
         /// <summary>
         /// Получить оборудование по родительскому местоположению
         /// </summary>

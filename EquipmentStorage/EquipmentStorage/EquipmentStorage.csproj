@@ -23,10 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ClientApp\src\components\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DBRepository\DBRepository.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
   </ItemGroup>

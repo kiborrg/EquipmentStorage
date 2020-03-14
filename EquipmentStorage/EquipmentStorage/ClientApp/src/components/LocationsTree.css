@@ -1,4 +1,7 @@
 ﻿.locations-tree {
     width: 30%;
     padding: 10px;
+    left: 0;
+    top: 0;
+    position: fixed
 }
