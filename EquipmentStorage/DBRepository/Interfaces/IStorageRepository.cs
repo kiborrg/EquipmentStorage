@@ -10,7 +10,6 @@ namespace DBRepository.Interfaces
         /// Получить список местоположений асинхронно
         /// </summary>
         /// <returns>Местоположения</returns>
-        //Task<List<Location>> GetLocationsAsync();
         Task<List<LocationEquipCnt>> GetLocationsAsync();
         /// <summary>
         /// Получить оборудование по родительскому местоположению асинхронно
@@ -18,5 +17,25 @@ namespace DBRepository.Interfaces
         /// <param name="parentId">ИД родителя</param>
         /// <returns>Оборудование</returns>
         Task<List<EquipWithLocation>> GetEquipmentAsync(int? parentId);
+        /// <summary>
+        /// Получить список типов оборудования асинхронно
+        /// </summary>
+        /// <returns></returns>
+        Task<List<EquipmentType>> GetEquipTypes();
+        /// <summary>
+        /// Добавить новое оборудование в комнату
+        /// </summary>
+        /// <param name="equipment">Оборудование для добавления</param>
+        void InsertEquip(Equipment equipment);
+        /// <summary>
+        /// Редактировать оборудование
+        /// </summary>
+        /// <param name="equipment">Оборудование для редактирования</param>
+        void UpdateEquip(Equipment equipment);
+        /// <summary>
+        /// Удалить оборудование
+        /// </summary>
+        /// <param name="equipId">ИД оборудования для удаления</param>
+        void DeleteEquip(int equipId);
     }
 }

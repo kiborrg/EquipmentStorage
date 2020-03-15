@@ -55,7 +55,7 @@ namespace DBRepository.Repositories
                 var query = context.Locations.AsQueryable();
                 query = query.Include(l => l.LocationType);
                 List<Location> locations = await query.ToListAsync();
-                foreach(Location l in locations)
+                foreach (Location l in locations)
                 {
                     result.Add(new LocationEquipCnt
                     {
@@ -95,6 +95,85 @@ namespace DBRepository.Repositories
                       SELECT t.LocationId, t.LocationTypeId, t.Name, t.ParentId
                       FROM Tree t
                       WHERE LocationTypeId = 3";
+        }
+
+        public async Task<List<EquipmentType>> GetEquipTypes()
+        {
+            List<EquipmentType> result = new List<EquipmentType>();
+
+            using (var context = ContextFactory.CreateDBContext(ConnectionString))
+            {
+                var query = context.EquipmentTypes.AsQueryable();
+
+                result = await query.ToListAsync();
+            }
+
+            return result;
+        }
+
+        public void InsertEquip(Equipment equipment)
+        {
+            using (var context = ContextFactory.CreateDBContext(ConnectionString))
+            {
+                string sql = $@"INSERT INTO Equipment (TypeId, Name, count, RoomId) VALUES(@type, @name, @count, @room)";
+
+                var type = new SqlParameter("@type", equipment.Type.Id);
+                var name = new SqlParameter("@name", equipment.Name);
+                var count = new SqlParameter("@count", equipment.Count);
+                var room = new SqlParameter("@room", equipment.RoomId);
+
+                context.Database.BeginTransaction();
+                var numRows = context.Database.ExecuteSqlCommand(sql, new object[] { type, name, count, room });
+                context.Database.CommitTransaction();
+            }
+        }
+        public void UpdateEquip(Equipment equipment)
+        {
+            using (var context = ContextFactory.CreateDBContext(ConnectionString))
+            {
+                var prs = new List<object>();
+                var prsStr = new List<String>();
+
+                if (equipment.Type != null)
+                {
+                    prs.Add(new SqlParameter("@type", equipment.Type.Id));
+                    prsStr.Add("TypeId = @type");
+                }
+
+                if (equipment.Name != null)
+                {
+                    prs.Add(new SqlParameter("@name", equipment.Name));
+                    prsStr.Add("name = @name");
+                }
+
+                if (equipment.Count != -1)
+                {
+                    prs.Add(new SqlParameter("@count", equipment.Count));
+                    prsStr.Add("Count = @count");
+                }
+
+                if(prs.Count > 0)
+                {
+                    prs.Add(new SqlParameter("@equip", equipment.EquipmentId));
+                    string sql = $@"UPDATE Equipment SET {string.Join(", ", prsStr)} WHERE EquipmentId = @equip";
+                    context.Database.BeginTransaction();
+                    var numRows = context.Database.ExecuteSqlCommand(sql, prs.ToArray());
+                    context.Database.CommitTransaction();
+                }
+            }
+        }
+        public void DeleteEquip(int equipId)
+        {
+            using (var context = ContextFactory.CreateDBContext(ConnectionString))
+            {
+                string sql = $@"DELETE FROM Equipment WHERE EquipmentId = @equip";
+
+                var equip = new SqlParameter("@equip", equipId);
+
+                context.Database.BeginTransaction();
+                var numRows = context.Database.ExecuteSqlCommand(sql, equip);
+                context.Database.CommitTransaction();
+            }
         }
     }
 }

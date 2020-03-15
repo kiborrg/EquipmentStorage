@@ -21,5 +21,17 @@ namespace EquipmentStorage.Controllers
 
         [HttpGet("[action]")]
         public Task<List<EquipWithLocation>> GetEquipmentAsync(int? parentId) => StorageRepository.GetEquipmentAsync(parentId);
+
+        [HttpGet("[action]")]
+        public Task<List<EquipmentType>> GetEquipTypes() => StorageRepository.GetEquipTypes();
+
+        [HttpPost("[action]")]
+        public void UpdateEquip([FromBody]Equipment equipment) => StorageRepository.UpdateEquip(equipment);
+
+        [HttpPut("[action]")]
+        public void InsertEquip([FromBody]Equipment equipment) => StorageRepository.InsertEquip(equipment);
+
+        [HttpDelete("[action]")]
+        public void DeleteEquip(int equipId) => StorageRepository.DeleteEquip(equipId);
     }
 }
