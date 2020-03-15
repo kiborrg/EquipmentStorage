@@ -7,11 +7,12 @@ import 'devextreme/dist/css/dx.light.css';
 export default class App extends Component {
     constructor(props) {
         super(props);
-
+        
         this.updateGrid = this.updateGrid.bind(this);
 
         this.state = {
-            parent: null
+            parent: null,
+            refresh: false
         }
     }
 
@@ -19,11 +20,16 @@ export default class App extends Component {
         this.setState({ parent: item });
     }
 
+    testRefresh() {
+        this.setState({ refresh: true });
+        this.setState({ refresh: false });
+    }
+
     render() {
         return (
             <div className="main-class" >
-                <LocationsTree updateGrid={this.updateGrid} />
-                <EquipGrid parent={this.state.parent} />
+                <LocationsTree updateGrid={this.updateGrid} refresh={this.state.refresh} />
+                <EquipGrid onRefresh={() => { this.testRefresh() }} parent={this.state.parent} />
             </div>
         );
     }

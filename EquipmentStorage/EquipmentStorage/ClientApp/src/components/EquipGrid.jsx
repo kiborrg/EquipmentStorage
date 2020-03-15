@@ -2,6 +2,7 @@
 import DataGrid, { Column, Editing, Lookup, HeaderFilter } from 'devextreme-react/data-grid';
 
 import CustomStore from 'devextreme/data/custom_store';
+import Services from './Services.js'
 
 import 'devextreme/dist/css/dx.common.css';
 import 'devextreme/dist/css/dx.light.css';
@@ -11,7 +12,13 @@ export class EquipGrid extends Component {
     constructor(props) {
         super(props);
 
+        console.log(props);
+
         this.getEquipment = this.getEquipment.bind(this);
+
+        this.gridRef = React.createRef();
+
+        this.service = new Services(props);
 
         this.state = {
             parent: null
@@ -23,9 +30,13 @@ export class EquipGrid extends Component {
             this.setState({ parent: this.props.parent });
         }
     }
-
+    
     get grid() {
         return this.gridRef.current.instance;
+    }
+
+    refresh() {
+        this.grid.refresh();
     }
 
     getEquipment() {
@@ -34,50 +45,19 @@ export class EquipGrid extends Component {
             method: "GET",
             load: () => {
                 if (this.state.parent !== null)
-                    return fetch("api/Storage/GetEquipmentAsync?parentId=" + this.state.parent.locationId) 
-                        .then(res => res.json());
+                    return this.service.getEquipment(this.state.parent.locationId);
             },
             update: (key, values) => {
-                console.log(values.type);
-                return fetch("api/Storage/UpdateEquip", {
-                    method: "POST",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(Object.assign({
-                        equipmentId: key,
-                        roomId: this.state.parent.locationId,
-                        type: values.type === undefined ? null : {
-                            id: values.type.id,
-                            name: values.type.name
-                        },
-                        count: values.count === undefined ? -1 : values.count,
-                        name: values.name === undefined ? null : values.name
-                    }))
-                });
+                return this.service.updateEquip(key, values, this.state.parent.locationId)
+                    .then(() => this.props.onRefresh());
             },
             remove: (key) => {
-                return fetch("api/Storage/DeleteEquip?equipId=" + key, {
-                    method: "DELETE"
-                });
+                return this.service.deleteEquip(key)
+                    .then(() => this.props.onRefresh());
             },
             insert: (values) => {
-                return fetch("api/Storage/InsertEquip", {
-                    method: "PUT",
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(Object.assign({
-                        equipmentId: -1,
-                        roomId: this.state.parent.locationId,
-                        type: {
-                            id: values.type.id,
-                            name: values.type.name
-                        },
-                        count: values.count,
-                        name: values.name
-                    }))
-                });
+                return this.service.insertEquip(values, this.state.parent.locationId)
+                    .then(() => this.props.onRefresh());
             }
         });
     }
@@ -101,6 +81,7 @@ export class EquipGrid extends Component {
             <DataGrid id="equipGrid"
                 className="equip-grid"
                 dataSource={this.state.parentId !== null ? this.getEquipment() : null}
+                ref={this.gridRef}
             >
                 <HeaderFilter visible={true} />
                 <Column dataField="name" caption="Название" alignment="center" allowFiltering={true} />

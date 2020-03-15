@@ -1,5 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { TreeView } from 'devextreme-react';
+import Services from './Services.js';
+
 import 'devextreme/dist/css/dx.common.css';
 import 'devextreme/dist/css/dx.light.css';
 import './LocationsTree.css';
@@ -11,6 +13,10 @@ export class LocationsTree extends Component {
         this.onItemClick = this.onItemClick.bind(this);
         this.updateGrid = this.updateGrid.bind(this);
 
+        this.service = new Services(props);
+
+        this.treeRef = React.createRef();
+
         this.state = {
             locations: [],
             isLoaded: false
@@ -18,11 +24,26 @@ export class LocationsTree extends Component {
     }
 
     componentDidMount() {
-        fetch("api/Storage/GetLocationsAsync")
-            .then(res => res.json())
+        this.service.getLocations()
             .then(data => {
                 this.setState({ locations: data, isLoaded: true })
             });
+    }
+
+    componentDidUpdate() {
+        if (this.props.refresh === true)
+            this.service.getLocations()
+                .then(data => {
+                    this.setState({ locations: data, isLoaded: true })
+                });
+    }
+
+    get tree() {
+        return this.treeRef.current.instance;
+    }
+
+    refresh() {
+        this.tree.refresh();
     }
 
     onItemClick(e) {
@@ -42,6 +63,7 @@ export class LocationsTree extends Component {
         else {
             return (
                 <TreeView id="locationsTree"
+                    ref={this.treeRef}
                     className="locations-tree"
                     dataSource={this.state.locations}
                     dataStructure="plain"

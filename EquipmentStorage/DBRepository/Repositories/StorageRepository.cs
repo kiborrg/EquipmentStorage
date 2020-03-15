@@ -1,4 +1,5 @@
 ﻿using DBRepository.Interfaces;
+using EquipmentStorage;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using System;
@@ -13,7 +14,20 @@ namespace DBRepository.Repositories
     public class StorageRepository : BaseRepository, IStorageRepository
     {
         public StorageRepository(string connectionString, IRepositoryContextFactory contextFactory) : base(connectionString, contextFactory)
-        { }
+        {
+            DefaultData defaultData = new DefaultData();
+            using (var context = ContextFactory.CreateDBContext(ConnectionString))
+            {
+                if (!context.LocationTypes.Any())
+                    defaultData.InitLocationTypes(ContextFactory, ConnectionString);
+
+                if (!context.Locations.Any())
+                    defaultData.InitLocations(ContextFactory, ConnectionString);
+
+                if (!context.EquipmentTypes.Any())
+                    defaultData.InitEquipTypes(ContextFactory, ConnectionString);
+            }
+        }
 
         public async Task<List<EquipWithLocation>> GetEquipmentAsync(int? parentId)
         {
