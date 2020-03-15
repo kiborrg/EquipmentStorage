@@ -11,19 +11,19 @@ export default class App extends Component {
         this.updateGrid = this.updateGrid.bind(this);
 
         this.state = {
-            parentId: null
+            parent: null
         }
     }
 
-    updateGrid(parentId) {
-        this.setState({ parentId: parentId });
+    updateGrid(item) {
+        this.setState({ parent: item });
     }
 
     render() {
         return (
             <div className="main-class" >
                 <LocationsTree updateGrid={this.updateGrid} />
-                <EquipGrid parentId={this.state.parentId} />
+                <EquipGrid parent={this.state.parent} />
             </div>
         );
     }

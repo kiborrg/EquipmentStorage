@@ -15,49 +15,32 @@ namespace DBRepository.Repositories
         public StorageRepository(string connectionString, IRepositoryContextFactory contextFactory) : base(connectionString, contextFactory)
         { }
 
-        public List<Equipment> GetEquipment(int? parentId)
+        public async Task<List<EquipWithLocation>> GetEquipmentAsync(int? parentId)
         {
-            List<Equipment> result = new List<Equipment>();
+            List<EquipWithLocation> result = new List<EquipWithLocation>();
 
             using (var context = ContextFactory.CreateDBContext(ConnectionString))
             {
-                var query = context.Equipment.AsQueryable();
-                if(parentId != null)
+                string sql = GetLocationsRecursiveQuery(parentId);
+                var rooms = context.Locations.FromSql(sql).ToList();
+
+                var query = context.Equipment.Where(e => rooms.Select(r => r.LocationId).Contains(e.RoomId));
+
+                query = query.Include(e => e.Type);
+                var equip = await query.ToListAsync();
+                foreach (Equipment e in equip)
                 {
-                    query = query.Where(s => s.RoomId == parentId);
+                    result.Add(new EquipWithLocation
+                    {
+                        EquipmentId = e.EquipmentId,
+                        Count = e.Count,
+                        Name = e.Name,
+                        RoomId = e.RoomId,
+                        Type = e.Type,
+                        Room = context.Locations.Include(l => l.LocationType).First(r => r.LocationId == e.RoomId)
+                    });
+
                 }
-                result = query.ToList();
-            }
-
-            return result;
-        }
-
-        public async Task<List<Equipment>> GetEquipmentAsync(int? parentId)
-        {
-            List<Equipment> result = new List<Equipment>();
-
-            using (var context = ContextFactory.CreateDBContext(ConnectionString))
-            {
-                var query = context.Equipment.AsQueryable();
-                if (parentId != null)
-                {
-                    query = query.Where(s => s.RoomId == parentId);
-                }
-                result = await query.ToListAsync();
-            }
-
-            return result;
-        }
-
-        public List<Location> GetLocations()
-        {
-            List<Location> result = new List<Location>();
-
-            using (var context = ContextFactory.CreateDBContext(ConnectionString))
-            {
-                var query = context.Locations.AsQueryable();
-                query = query.Include(l => l.LocationType);
-                result = query.ToList();
             }
 
             return result;

@@ -22,5 +22,6 @@ namespace Models
         /// ИД родителя в иерархии
         /// </summary>
         public int? ParentId { get; set; }
+        public bool Expanded => true;
     }
 }

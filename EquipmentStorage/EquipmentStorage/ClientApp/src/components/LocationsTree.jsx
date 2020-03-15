@@ -26,11 +26,11 @@ export class LocationsTree extends Component {
     }
 
     onItemClick(e) {
-        this.updateGrid(e.itemData.locationId);
+        this.updateGrid(e.itemData);
     }
 
-    updateGrid(parentId) {
-        this.props.updateGrid(parentId);
+    updateGrid(item) {
+        this.props.updateGrid(item);
     }
 
     render() {
@@ -48,7 +48,7 @@ export class LocationsTree extends Component {
                     displayExpr="nameWithCnt"
                     keyExpr="locationId"
                     parentIdExpr="parentId"
-                    expanded={true}
+                    expandedExpr="expanded"
                     onItemClick={this.onItemClick}
                 />
             );
